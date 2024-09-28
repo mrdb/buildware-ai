@@ -29,16 +29,16 @@ export const calculateLLMCost = ({
       outputCost: 15
     },
     {
-      name: "GPT-4 Turbo",
-      id: "gpt-4-turbo",
-      inputCost: 10,
-      outputCost: 30
+      name: "o1 Mini",
+      id: "o1-mini",
+      inputCost: 3,
+      outputCost: 12
     },
     {
-      name: "GPT-3.5 Turbo",
-      id: "gpt-3.5-turbo",
-      inputCost: 0.5,
-      outputCost: 1.5
+      name: "o1 Preview",
+      id: "o1-preview",
+      inputCost: 15,
+      outputCost: 60
     },
     // Google
     {

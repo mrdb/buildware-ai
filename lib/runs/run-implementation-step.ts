@@ -3,10 +3,7 @@ import { saveCodegenEval } from "@/actions/evals/save-codegen-eval"
 import { SelectIssue } from "@/db/schema"
 import { BUILDWARE_IMPLEMENTATION_LLM } from "@/lib/constants/buildware-config"
 import { parseImplementationResponse } from "../ai/run-system/implementation/implementation-parser"
-import {
-  buildImplementationPrompt,
-  IMPLEMENTATION_PREFILL
-} from "../ai/run-system/implementation/implementation-prompt"
+import { buildImplementationPrompt } from "../ai/run-system/implementation/implementation-prompt"
 
 export const runImplementationStep = async ({
   issue,
@@ -31,7 +28,8 @@ export const runImplementationStep = async ({
       plan
     })
 
-    let implementationResponse = IMPLEMENTATION_PREFILL
+    // let implementationResponse = IMPLEMENTATION_PREFILL
+    let implementationResponse = ``
     let isComplete = false
 
     while (!isComplete) {
@@ -43,6 +41,7 @@ export const runImplementationStep = async ({
           prefill
         })
 
+      console.log("partialResponse", partialResponse)
       implementationResponse += partialResponse
       isComplete = partialIsComplete
 
@@ -64,11 +63,25 @@ export const runImplementationStep = async ({
     const parsedImplementation = parseImplementationResponse(
       implementationResponse
     )
+    console.log("parsedImplementation", parsedImplementation)
+
+    //     await saveCodegenEval(
+    //       `${implementationSystemPrompt}
+
+    // ${implementationUserMessage}`,
+    //       issue.name,
+    //       "implementation",
+    //       "prompt"
+    //     )
+    //     await saveCodegenEval(
+    //       implementationResponse,
+    //       issue.name,
+    //       "implementation",
+    //       "response"
+    //     )
 
     await saveCodegenEval(
-      `${implementationSystemPrompt}
-
-${implementationUserMessage}`,
+      `${implementationUserMessage}`,
       issue.name,
       "implementation",
       "prompt"

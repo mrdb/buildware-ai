@@ -11,10 +11,8 @@ import {
 import { runCompletedStep } from "@/lib/runs/run-completed-step"
 import { runEmbeddingStep } from "@/lib/runs/run-embedding-step"
 import { runImplementationStep } from "@/lib/runs/run-implementation-step"
-import { runPlanStep } from "@/lib/runs/run-plan-step"
 import { runPRStep } from "@/lib/runs/run-pr-step"
 import { runRetrievalStep } from "@/lib/runs/run-retrieval-step"
-import { runSpecificationStep } from "@/lib/runs/run-specification-step"
 import { runStartStep } from "@/lib/runs/run-start-step"
 import {
   ParsedImplementation,
@@ -51,8 +49,8 @@ export const RunDashboard = ({
     started: null,
     embedding: null,
     retrieval: null,
-    specification: null,
-    plan: null,
+    // specification: null,
+    // plan: null,
     implementation: null,
     pr: null,
     completed: null
@@ -89,6 +87,7 @@ ${instruction.content}
   }, [currentStep])
 
   const updateStepStatus = (step: RunStepName, status: RunStepStatus) => {
+    console.log("updating step status", step, status)
     setStepStatuses(prevSteps => ({ ...prevSteps, [step]: status }))
   }
 
@@ -119,44 +118,50 @@ ${instruction.content}
             )
             setWaitingForConfirmation(true)
             return
-          case "specification":
-            const specificationStepResponse = await runSpecificationStep({
-              issue,
-              codebaseFiles: latestCodebaseFiles,
-              instructionsContext
-            })
-            setSpecificationResponse(
-              specificationStepResponse.specificationResponse
-            )
-            setParsedSpecification(
-              specificationStepResponse.parsedSpecification
-            )
-            setWaitingForConfirmation(true)
-            return
-          case "plan":
-            const planStepResponse = await runPlanStep({
-              issue,
-              codebaseFiles: latestCodebaseFiles,
-              instructionsContext,
-              specification: specificationResponse
-            })
-            setPlanResponse(planStepResponse.planResponse)
-            setParsedPlan(planStepResponse.parsedPlan)
-            setWaitingForConfirmation(true)
-            return
+          // case "specification":
+          //   const specificationStepResponse = await runSpecificationStep({
+          //     issue,
+          //     codebaseFiles: latestCodebaseFiles,
+          //     instructionsContext
+          //   })
+          //   setSpecificationResponse(
+          //     specificationStepResponse.specificationResponse
+          //   )
+          //   setParsedSpecification(
+          //     specificationStepResponse.parsedSpecification
+          //   )
+          //   setWaitingForConfirmation(true)
+          //   return
+          // case "plan":
+          //   const planStepResponse = await runPlanStep({
+          //     issue,
+          //     codebaseFiles: latestCodebaseFiles,
+          //     instructionsContext,
+          //     specification: specificationResponse
+          //   })
+          //   setPlanResponse(planStepResponse.planResponse)
+          //   setParsedPlan(planStepResponse.parsedPlan)
+          //   setWaitingForConfirmation(true)
+          //   return
           case "implementation":
+            console.log("running implementation step")
             const implementationStepResponse = await runImplementationStep({
               issue,
               codebaseFiles: latestCodebaseFiles,
               instructionsContext,
               plan: planResponse
             })
+            console.log(
+              "implementation step response",
+              implementationStepResponse
+            )
             setParsedImplementation(
               implementationStepResponse.parsedImplementation
             )
             setWaitingForConfirmation(true)
             return
           case "pr":
+            console.log("running pr step")
             const prStepResponse = await runPRStep({
               issue,
               project,

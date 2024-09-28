@@ -25,7 +25,7 @@ export const buildImplementationPrompt = async ({
   plan: string
   partialResponse?: string
 }) => {
-  const systemPrompt = endent`
+  const systemPromptAnthropic = endent`
     You are an expert software engineer.
 
     You will be given an existing codebase to work with, a task to complete, general instructions & guidelines for the task, a plan for the task, and response instructions.
@@ -51,7 +51,7 @@ export const buildImplementationPrompt = async ({
 
     Use <scratchpad> tags to think through the process as you create the implementation.`
 
-  const userMessageTemplate = endent`
+  const userMessageTemplateAnthropic = endent`
     # Existing Codebase
 
     First, review the existing codebase you'll be working with:
@@ -160,6 +160,124 @@ export const buildImplementationPrompt = async ({
     ---
 
     Now, based on the task information, existing codebase, plan, and instructions provided, create the implementation for the task. Present your implementation in the format described above.`
+
+  const userMessageTemplateOpenai = endent`
+    You are an expert software engineer.
+
+    You will be given an existing codebase to work with, a task to complete, general instructions & guidelines for the task, and response instructions.
+
+    Your goal is to use this information to write all of the code needed to complete the given task.
+
+    Ensure your code is of the highest quality, follows best practices, and fully & effectively completes the given task.
+
+    Each file should include the following information:
+    - The full file path
+    - The file status (created, modified, deleted)
+    - The full file content
+
+    To create the implementation:
+    - Carefully analyze the existing codebase and understand its structure
+    - Identify which files need to be created, modified, or deleted to accomplish the task
+    - Write code that adheres to best practices and the instructions provided
+    - Ensure your code integrates seamlessly with the existing codebase
+    - For created files, provide the full file path and full file content
+    - For modified files, provide the full file path and full file content
+    - For deleted files, only provide the full file path
+
+    # Existing Codebase
+
+    First, review the existing codebase you'll be working with:
+
+    <codebase>
+      {{CODEBASE_PLACEHOLDER}}
+    </codebase>
+
+    ---
+
+    # Task
+
+    Next, review the task information:
+
+    <task>
+      <task_name>${issue.name || "No title provided."}</task_name>
+      <task_details>
+        ${issue.description || "No details provided."}
+      </task_details>
+    </task>
+
+    ---
+
+    # Instructions and Guidelines
+
+    Keep in mind these general instructions and guidelines while working on the task:
+
+    <instructions>
+      ${instructionsContext || "No additional instructions provided."}
+    </instructions>
+
+    ---
+
+    # Response Instructions
+
+    When writing your response, follow these instructions:
+    
+    ## Response Information
+
+    Respond with the following information:
+
+    - PULL_REQUEST: The full content for the PR.
+      - PR_TITLE: The title of the PR. Maximum 100 characters.
+      - PR_DESCRIPTION: The description of the PR. Maximum 500 characters.
+      - FILE_LIST: Enclose your response in <file_list> tags to help with parsing.
+        - FILE: Each file that is being modified, created, or deleted.
+          - FILE_STATUS: Use 'new' for newly created files, 'modified' for existing files that are being updated, and 'deleted' for files that are being deleted.
+          - FILE_PATH: The full path from the project root, including the file extension.
+          - FILE_CONTENT: The complete file content, including all necessary imports, function definitions, and exports.
+          
+    ## Response Format
+  
+    Respond in the following format:
+
+    <pull_request>
+      <pr_title>__PR_TITLE__</pr_title>
+      <pr_description>__PR_DESCRIPTION__</pr_description>
+      <file_list>
+        <file>
+          <file_status>__STATUS__</file_status>
+          <file_path>__FILE_PATH__</file_path>
+          <file_content>
+            __FILE_CONTENT__
+          </file_content>
+        </file>
+        ...remaining files... 
+      </file_list>
+    </pull_request>
+  
+    ## Response Example
+
+    An example response:
+
+    <pull_request>
+      <pr_title>PR title here...</pr_title>
+      <pr_description>PR description here...</pr_description>
+      <file_list>
+        <file>
+          <file_status>file status here...</file_status>
+          <file_path>file path here...</file_path>
+          <file_content>
+            file content here...
+          </file_content>
+        </file>
+        ...remaining files...
+      </file_list>
+    </pull_request>
+
+    ---
+
+    Now, based on the task information, existing codebase, and instructions provided, create the implementation for the task. Present your implementation in the format described above.`
+
+  const systemPrompt = ""
+  const userMessageTemplate = userMessageTemplateOpenai
 
   const systemPromptTokens = estimateClaudeTokens(systemPrompt)
   const userMessageTemplateTokens = estimateClaudeTokens(userMessageTemplate)

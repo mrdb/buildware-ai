@@ -8,8 +8,6 @@ import {
   CirclePlus,
   Cpu,
   DiamondPlus,
-  List,
-  ListChecks,
   Loader2
 } from "lucide-react"
 
@@ -21,12 +19,12 @@ const messages = [
     icon: <CirclePlus className="size-4" />,
     step: "retrieval"
   },
-  {
-    text: "Specification",
-    icon: <List className="size-4" />,
-    step: "specification"
-  },
-  { text: "Plan", icon: <ListChecks className="size-4" />, step: "plan" },
+  // {
+  //   text: "Specification",
+  //   icon: <List className="size-4" />,
+  //   step: "specification"
+  // },
+  // { text: "Plan", icon: <ListChecks className="size-4" />, step: "plan" },
   {
     text: "Implementation",
     icon: <ChevronsLeftRight className="size-4" />,

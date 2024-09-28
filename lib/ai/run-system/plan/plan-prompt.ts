@@ -25,7 +25,7 @@ export const buildPlanPrompt = async ({
   specification: string
   partialResponse?: string
 }) => {
-  const systemPrompt = endent`
+  const systemPromptAnthropic = endent`
     You are an expert software engineer.
 
     You will be given an existing codebase to work with, a task to complete, general instructions & guidelines for the task, a specification for the task, and response instructions.
@@ -54,7 +54,7 @@ export const buildPlanPrompt = async ({
 
     Use <scratchpad> tags to think through the process as you create the plan.`
 
-  const userMessageTemplate = endent`
+  const userMessageTemplateAnthropic = endent`
     # Existing Codebase
 
     First, review the existing codebase you'll be working with:
@@ -133,6 +133,110 @@ export const buildPlanPrompt = async ({
     ---
 
     Now, based on the task information, existing codebase, specification, and instructions provided, create a high-level plan for implementing the task. Present your plan in the format described above.`
+
+  const userMessageTemplateOpenai = endent`
+    You are an expert software engineer.
+
+    You will be given an existing codebase to work with, a task to complete, general instructions & guidelines for the task, a specification for the task, and response instructions.
+
+    Your goal is to use this information to create a detailed implementation plan for the given task.
+
+    This plan will be passed to the implementation step, which will use it to create the implementation (writing the code) for the task.
+
+    Each step should include the following information:
+    - The full file path
+    - The file status (created, modified, deleted)
+    - A list of todos for the file
+
+    To create the plan:
+    - Break down the task into clear, logical steps
+    - Provide complete, actionable steps for implementation
+    - Use pseudocode where appropriate
+    - Address all requirements specified in the task and specification
+    - Carefully analyze the codebase, task description, general instructions, and specification
+    - Focus on implementation details, providing a step-by-step guide on how to complete the task
+    - Ensure your plan addresses all aspects of the task specification.
+
+    The plan should **NOT**:
+    - Include work that is already done in the codebase
+    
+    # Existing Codebase
+
+    First, review the existing codebase you'll be working with:
+
+    <codebase>
+      {{CODEBASE_PLACEHOLDER}}
+    </codebase>
+
+    ---
+
+    # Task
+
+    Next, review the task information:
+
+    <task>
+      <task_name>${issue.name || "No title provided."}</task_name>
+      <task_details>
+        ${issue.description || "No details provided."}
+      </task_details>
+    </task>
+
+    ---
+
+    # Instructions and Guidelines
+
+    Keep in mind these general instructions and guidelines while working on the task:
+
+    <instructions>
+      ${instructionsContext || "No additional instructions provided."}
+    </instructions>
+
+    ---
+
+    # Specification
+
+    To help you complete the task, here's a specification to follow:
+    
+    ${removeScratchpadTags(specification)}
+
+    ---
+
+    # Response Instructions
+
+    When writing your response, follow these instructions:
+    
+    ## Response Information
+
+    Respond with the following information:
+
+    - PLAN: The plan for the task.
+      - STEP: A step in the plan. Contains the step text in markdown format.
+
+    ## Response Format
+
+    Respond in the following format:
+
+    <plan>
+      <step>__STEP_TEXT__</step>
+      ...remaining steps...
+    </plan>
+
+    ## Response Example
+
+    An example response:
+
+    <plan>
+      <step>Step text here...</step>
+      <step>Step text here...</step>
+      ...remaining steps...
+    </plan>
+
+    ---
+
+    Now, based on the task information, existing codebase, specification, and instructions provided, create a high-level plan for implementing the task. Present your plan in the format described above.`
+
+  const systemPrompt = ""
+  const userMessageTemplate = userMessageTemplateOpenai
 
   const systemPromptTokens = estimateClaudeTokens(systemPrompt)
   const userMessageTemplateTokens = estimateClaudeTokens(userMessageTemplate)

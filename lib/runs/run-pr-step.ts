@@ -12,6 +12,7 @@ export const runPRStep = async ({
   parsedImplementation: ParsedImplementation
 }) => {
   try {
+    console.log("generatePR")
     const { prLink } = await generatePR(
       issue.name,
       project,

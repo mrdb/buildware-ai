@@ -13,8 +13,8 @@ export const runStepNameEnum = pgEnum("run_step_name", [
   "started",
   "embedding",
   "retrieval",
-  "specification",
-  "plan",
+  // "specification",
+  // "plan",
   "implementation",
   "pr",
   "completed"

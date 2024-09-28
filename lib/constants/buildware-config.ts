@@ -15,19 +15,41 @@ export const BUILDWARE_EMBEDDING_DIMENSIONS = 256
 export const BUILDWARE_MAX_OUTPUT_TOKENS = isDev ? 4096 : 8192
 
 // Max: 200000
-export const BUILDWARE_MAX_INPUT_TOKENS = isDev ? 20000 : 200000
+// export const BUILDWARE_MAX_INPUT_TOKENS = isDev ? 20000 : 200000
+export const BUILDWARE_MAX_INPUT_TOKENS = isDev ? 20000 : 120000
 
 const LLM_MODELS = {
   dev: {
     specification: "claude-3-haiku-20240307",
     plan: "claude-3-haiku-20240307",
     implementation: "claude-3-haiku-20240307"
+    // specification: "claude-3-haiku-20240307",
+    // specification: "claude-3-5-sonnet-20240620",
+    // plan: "claude-3-5-sonnet-20240620",
+    // implementation: "claude-3-5-sonnet-20240620"
+    // specification: "chatgpt-4o-latest",
+    // plan: "chatgpt-4o-latest",
+    // implementation: "chatgpt-4o-latest"
+    // specification: "gpt-4o",
+    // plan: "gpt-4o",
+    // implementation: "gpt-4o"
   },
   prod: {
-    // specification: "claude-3-haiku-20240307",
-    specification: "claude-3-5-sonnet-20240620",
-    plan: "claude-3-5-sonnet-20240620",
-    implementation: "claude-3-5-sonnet-20240620"
+    // specification: "claude-3-5-sonnet-20240620",
+    // plan: "claude-3-5-sonnet-20240620",
+    // implementation: "claude-3-5-sonnet-20240620",
+    specification: "o1-mini",
+    plan: "o1-mini",
+    implementation: "o1-mini"
+    // specification: "o1-preview",
+    // plan: "o1-preview",
+    // implementation: "o1-preview"
+    // specification: "chatgpt-4o-latest",
+    // plan: "chatgpt-4o-latest",
+    // implementation: "chatgpt-4o-latest"
+    // specification: "gpt-4o",
+    // plan: "gpt-4o",
+    // implementation: "gpt-4o"
   }
 }
 

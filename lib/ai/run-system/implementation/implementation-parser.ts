@@ -1,75 +1,76 @@
 import { GeneratedFile, ParsedImplementation } from "@/types/run"
 
+/**
+ * Removes common leading whitespace from each line.
+ * @param str The string to dedent.
+ * @returns The dedented string.
+ */
+function dedent(str: string): string {
+  const lines = str.split("\n")
+  let minIndent = Infinity
+
+  for (const line of lines) {
+    if (line.trim()) {
+      const match = line.match(/^(\s*)\S+/)
+      if (match) {
+        minIndent = Math.min(minIndent, match[1].length)
+      }
+    }
+  }
+
+  if (minIndent === Infinity) return str
+  return lines.map(line => line.slice(minIndent)).join("\n")
+}
+
 export function parseImplementationResponse(
   response: string
 ): ParsedImplementation {
-  const cleanedResponse = response.replace(
-    /<scratchpad>[\s\S]*?<\/scratchpad>/g,
-    ""
+  const pullRequestMatch = response.match(
+    /<pull_request>([\s\S]*?)<\/pull_request>/
   )
 
-  const pullRequestContent = extractBalancedContent(
-    cleanedResponse,
-    "pull_request"
-  )
-  if (!pullRequestContent) {
-    throw new Error(
-      "Invalid response format: Missing or unbalanced <pull_request> tags"
-    )
+  if (!pullRequestMatch) {
+    return { files: [], prTitle: "", prDescription: "" }
   }
 
-  const prTitle = extractBalancedContent(pullRequestContent, "pr_title") || ""
-  const prDescription =
-    extractBalancedContent(pullRequestContent, "pr_description") || ""
-  const files = extractFiles(pullRequestContent)
+  const cleanedPullRequest = removeScratchpadTags(pullRequestMatch[1])
+
+  const prTitle = extractContent(cleanedPullRequest, "pr_title")
+  const prDescription = extractContent(cleanedPullRequest, "pr_description")
+  const files = extractFiles(cleanedPullRequest)
 
   return { files, prTitle, prDescription }
 }
 
-function extractBalancedContent(
-  content: string,
-  tagName: string
-): string | null {
-  const stack: number[] = []
-  const openTag = `<${tagName}>`
-  const closeTag = `</${tagName}>`
-  let start = -1
+function removeScratchpadTags(content: string): string {
+  return content.replace(/<scratchpad>[\s\S]*?<\/scratchpad>\s*/g, "")
+}
 
-  for (let i = 0; i < content.length; i++) {
-    if (content.startsWith(openTag, i)) {
-      if (stack.length === 0) start = i + openTag.length
-      stack.push(i)
-      i += openTag.length - 1
-    } else if (content.startsWith(closeTag, i)) {
-      if (stack.length === 0) return null // Unbalanced tags
-      stack.pop()
-      if (stack.length === 0) {
-        return content.slice(start, i)
-      }
-      i += closeTag.length - 1
-    }
-  }
-
-  return null // Unbalanced tags
+function extractContent(content: string, tagName: string): string {
+  const regex = new RegExp(`<${tagName}>([\\s\\S]*?)<\\/${tagName}>`)
+  const match = content.match(regex)
+  return match ? match[1].trim() : ""
 }
 
 function extractFiles(content: string): GeneratedFile[] {
   const files: GeneratedFile[] = []
-  const fileListContent = extractBalancedContent(content, "file_list")
+  const fileListMatch = content.match(/<file_list>([\s\S]*?)<\/file_list>/)
 
-  if (fileListContent) {
+  if (fileListMatch) {
+    const fileListContent = fileListMatch[1]
     const fileMatches = fileListContent.matchAll(/<file>([\s\S]*?)<\/file>/g)
+
     for (const match of fileMatches) {
       const fileContent = match[1]
-      const status = extractBalancedContent(fileContent, "file_status") || ""
-      const path = extractBalancedContent(fileContent, "file_path") || ""
-      const fileContentText =
-        extractBalancedContent(fileContent, "file_content") || ""
+      const path = extractContent(fileContent, "file_path")
+      const status = extractContent(fileContent, "file_status")
+      const rawContent = extractContent(fileContent, "file_content")
+      const contentText = rawContent ? dedent(rawContent) : ""
 
       files.push({
-        path: path.trim(),
-        content: fileContentText.trim(),
-        status: status.trim() as "new" | "modified" | "deleted"
+        path,
+        content: contentText,
+        status: status as "new" | "modified" | "deleted"
       })
     }
   }
